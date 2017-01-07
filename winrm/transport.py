@@ -1,8 +1,10 @@
 from __future__ import unicode_literals
 from contextlib import contextmanager
+import errno
 import re
 import sys
 import os
+import time
 import weakref
 
 is_py2 = sys.version[0] == '2'
@@ -189,7 +191,17 @@ class Transport(object):
         prepared_request = self.session.prepare_request(request)
 
         try:
-            response = self.session.send(prepared_request, timeout=self.read_timeout_sec)
+
+            # Retry connection on 'Connection refused'
+            for attempt in range(5):
+                try:
+                    response = self.session.send(prepared_request, timeout=self.read_timeout_sec)
+                    break
+                except requests.exceptions.ConnectionError as e:
+                    if attempt == 4 or 'connection refused' not in str(e).lower():
+                        raise
+                    time.sleep(5)
+
             response_text = response.text
             response.raise_for_status()
             return response_text
