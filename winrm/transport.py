@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 from contextlib import contextmanager
-import errno
 import re
 import sys
 import os
@@ -244,7 +243,6 @@ class Transport(object):
                         raise
                     time.sleep(5)
 
-            response_text = response.text
             response.raise_for_status()
             return response
         except requests.HTTPError as ex:
