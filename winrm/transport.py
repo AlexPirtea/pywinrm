@@ -239,7 +239,7 @@ class Transport(object):
                     response = self.session.send(prepared_request, timeout=self.read_timeout_sec)
                     break
                 except requests.exceptions.ConnectionError as e:
-                    if attempt == 4 or 'connection refused' not in str(e).lower():
+                    if attempt == 4:
                         raise
                     time.sleep(5)
 
